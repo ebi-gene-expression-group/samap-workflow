@@ -40,8 +40,8 @@ def samap_run(sm_file, out_samap, out_tsv, out_png, numiters, nh1, nh2, celltype
 
     # Generate the mapping table
 
-    D1,D2,MappingTable = get_mapping_scores(sam,k1,k2)
-    MappingTable.to_csv(outtsv, sep = '\t')
+    D1,D2,MappingTable = get_mapping_scores(sm,celltype_field1,celltype_field2)
+    MappingTable.to_csv(out_tsv, sep = '\t')
 
     # Generate a heatmap for a visual representation
 
