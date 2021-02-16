@@ -1,6 +1,6 @@
 # SAMap automated workflow
 
-This is a workflow, built in [Snakemake](https://snakemake.readthedocs.io/en/stable/), to automate the running of @atarashansky's [SAMap](https://github.com/atarashansky/SAMap), mapping cell groups between species for arbitrary input data. It will:
+This is a workflow, built in [Snakemake](https://snakemake.readthedocs.io/en/stable/), to automate the running of [@atarashansky's](https://github.com/atarashansky) [SAMap](https://github.com/atarashansky/SAMap), mapping cell groups between species for arbitrary input data. It will:
 
  * Split the input transcriptomes and run the BLAST operations required prior to SAMap. This is instead of [map_genes.sh](map_genes.sh).
  * Generate the initial SAMAP object.
@@ -118,4 +118,6 @@ results
 
 (where 'hu' and 'mu' are replaced by your own species prefixes). BLAST maps are stored under 'maps', the primary cell type mappings and associated heatmap graphic are stored at the top level
 
-You will see some examples under 'example_outputs'. 
+You will see some examples under 'example_outputs', for example the heatmap:
+
+[SAMap heatmap](results/example_outputs/hu_mu.celltype_map_heatmap.png)
