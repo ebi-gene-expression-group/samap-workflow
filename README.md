@@ -2,7 +2,7 @@
 
 This is a workflow, built in [Snakemake](https://snakemake.readthedocs.io/en/stable/), to automate the running of [@atarashansky's](https://github.com/atarashansky) [SAMap](https://github.com/atarashansky/SAMap), mapping cell groups between species for arbitrary input data. It will:
 
- * Split the input transcriptomes and run the BLAST operations required prior to SAMap. This is instead of [map_genes.sh](map_genes.sh).
+ * Split the input transcriptomes and run the BLAST operations required prior to SAMap. This is instead of [map_genes.sh](https://github.com/atarashansky/SAMap/blob/main/map_genes.sh).
  * Generate the initial SAMAP object.
  * Produce the output mapping table and heatmap relating input cell types.
 
