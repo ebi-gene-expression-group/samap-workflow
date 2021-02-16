@@ -120,4 +120,4 @@ results
 
 You will see some examples under 'example_outputs', for example the heatmap:
 
-[SAMap heatmap](results/example_outputs/hu_mu.celltype_map_heatmap.png)
+![SAMap heatmap](results/example_outputs/hu_mu.celltype_map_heatmap.png)
