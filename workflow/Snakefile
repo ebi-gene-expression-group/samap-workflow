@@ -3,13 +3,14 @@ configfile: "config.yaml"
 wildcard_constraints:
     prefix1 = "[^\/\.]+",
     prefix2 = "[^\/\.]+",
+    results_tag = "[^\/]+",
 
 name1, name2 = config.get('data').keys()
 
 rule all:
     input:    
-        map="%s/%s_%s.celltype_map.tsv" % (config.get('outdir'), name1, name2),
-        heatmap="%s/%s_%s.celltype_map_heatmap.png" % (config.get('outdir'), name1, name2)
+        map="%s/%s/%s_%s.celltype_map.tsv" % (config.get('outdir'), config.get("results_tag"), name1, name2),
+        heatmap="%s/%s/%s_%s.celltype_map_heatmap.png" % (config.get('outdir'), config.get("results_tag"), name1, name2)
 
 rule unzip_transcriptome:
     input:
@@ -21,6 +22,12 @@ rule unzip_transcriptome:
     shell:
         "zcat {input.fagz} > {output.fa}"
 
+
+## Blast section 
+
+# BLAST searches can be sped up significantly if spread over multiple compute
+# nodes. The database is composed from the full set, but queries are divided,
+# and the results concatenated after.
 
 rule split_transcriptome: 
     conda:
@@ -79,6 +86,11 @@ rule merge_blast:
     shell:
         "cat {input.maps} > {output.merged}"
 
+## SAMap section
+
+# Make a transcript/gene mapping from the transriptome (assuming ensembl-like
+# gene ID strings in the fasta headers
+
 rule transcript_to_gene:
     input:
         fa=lambda wildcards: config["data"][wildcards.prefix]['transcriptome']
@@ -90,6 +102,9 @@ rule transcript_to_gene:
         zcat {input.fa} |  grep '>' | awk '{{print $1"\\t"$4}}' | sed 's/>//' | sed 's/gene://g' | sed -r 's/\.[0-9]+//g' > {output.txt}
         """
 
+# Do the initial SAMap initialisation step. This takes the longest, so protect
+# the output.
+
 rule samap_samap:
     conda: 'envs/samap.yml'
 
@@ -99,17 +114,21 @@ rule samap_samap:
         maps = lambda wildcards: [ "%s/maps/%s" % (wildcards.path, file) for file in [ '%s%s/%s_to_%s.txt' % (wildcards.prefix1, wildcards.prefix2, wildcards.prefix1, wildcards.prefix2), '%s%s/%s_to_%s.txt' % (wildcards.prefix1, wildcards.prefix2, wildcards.prefix2, wildcards.prefix1) ] ]
 
     output:
-        pkl=protected("{path}/{prefix1}_{prefix2}.sam.pkl")
+        pkl=protected("{path}/{results_tag}/{prefix1}_{prefix2}.sam.pkl")
 
     params:
         anndata1=lambda wildcards: config["data"][wildcards.prefix1]['anndata'],
-        anndata2=lambda wildcards: config["data"][wildcards.prefix2]['anndata']
-    
+        anndata2=lambda wildcards: config["data"][wildcards.prefix2]['anndata'],
+        reset_to_raw='--reset-to-raw' if config.get('reset_to_raw') is not None and config.get('reset_to_raw') else ''
+
     resources:
         mem_mb=lambda wildcards, attempt: attempt * 32684
 
     shell:
-        "samap-samap --id1={wildcards.prefix1} --id2={wildcards.prefix2} {params.anndata1} {params.anndata2} {wildcards.path}/maps/ {input.transcript_to_gene1} {input.transcript_to_gene2} {output.pkl}"
+        "samap-samap --id1={wildcards.prefix1} --id2={wildcards.prefix2} {params.reset_to_raw} {params.anndata1} {params.anndata2} {wildcards.path}/maps/ {input.transcript_to_gene1} {input.transcript_to_gene2} {output.pkl}"
+
+
+# Note: memory usage for samap-run scales with number of threads.
 
 rule samap_run:
     conda: 'envs/samap.yml'
@@ -123,11 +142,13 @@ rule samap_run:
         png="{path}/{prefix1}_{prefix2}.celltype_map_heatmap.png"
     
     resources:
-        mem_mb=lambda wildcards, attempt: attempt * 8092
+        mem_mb=lambda wildcards, attempt, threads: attempt * threads * 10240
          
+    threads: config.get('samap-run').get('threads')
+    
     params:
-        cell_type_field=config.get('cell_type_field')       
+        cell_type_field=config.get('cell_type_field'),       
 
     shell:
-        "samap-run --celltype_field1 {params.cell_type_field} --celltype_field2 {params.cell_type_field} {input.sam} {output.sam} {output.tsv} {output.png}"
+        "samap-run --celltype_field1 {params.cell_type_field} --celltype_field2 {params.cell_type_field} --ncpus {threads} {input.sam} {output.sam} {output.tsv} {output.png}"
 

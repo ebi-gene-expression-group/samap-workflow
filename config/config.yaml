@@ -4,6 +4,9 @@ blast:
     type: nucl
     threads: 16
 
+samap-run:
+    threads: 4
+
 data:
     hu:
         anndata: hu.h5ad
@@ -12,5 +15,9 @@ data:
         anndata: mu.h5ad
         transcriptome: Mus_musculus.GRCm38.cdna.all.99.fa.gz
 
+reset_to_raw: True
+
 cell_type_field: 'inferred_cell_type_-_ontology_labels'
+
 outdir: 'results'
+results_tag: 'E-MTAB-5061_vs_E-ENAD-15.pancreas'

@@ -24,8 +24,9 @@ import matplotlib.pyplot as plt
 @click.option('--nops2', type=click.INT, default=0, help="Keeps the `NOPs2` largest incoming edges in the homology graph, pruning the rest. The final homology graph is the union of the outgoing- and incoming-edge filtered graphs. If 0, no pruning is done.")
 @click.option('--n-gene-chunks', type=click.INT, default=1, help="When updating the edge weights in the BLAST homology graph, the operation will be split up into `N_GENE_CHUNKS` chunks. For large datasets (>50,000 cells), use more chunks (e.g. 4) to avoid running out of memory.")
 @click.option('--use-seq', default=False, help="If `USE_SEQ` is False, gene-gene correlations replace the BLAST sequence similarity edge weights when refining the edge weights in the homology graph. If `USE_SEQ` is True, gene-gene correlations scale the BLAST sequence similarity edge weights. `USE_SEQ` is False by default.")
+@click.option('--ncpus', type=click.INT, default=None, help="Number of CPUs to be used in calculating gene/gene correlations. Defaults to all available.")
 
-def samap_run(sm_file, out_samap, out_tsv, out_png, numiters, nh1, nh2, celltype_field1, celltype_field2, k, nops1, nops2, n_gene_chunks, use_seq):
+def samap_run(sm_file, out_samap, out_tsv, out_png, numiters, nh1, nh2, celltype_field1, celltype_field2, k, nops1, nops2, n_gene_chunks, use_seq, ncpus):
     """Runs the SAMap algorithm and writes output files.
 
     Keyword arguments:\n
@@ -36,7 +37,7 @@ def samap_run(sm_file, out_samap, out_tsv, out_png, numiters, nh1, nh2, celltype
     """
 
     sm = load_samap(sm_file)
-    samap = sm.run(NUMITERS=numiters, NH1=nh1, NH2=nh2, K=k, NOPs1=nops1, NOPs2=nops2, N_GENE_CHUNKS=n_gene_chunks, USE_SEQ=use_seq)
+    samap = sm.run(NUMITERS=numiters, NH1=nh1, NH2=nh2, K=k, NOPs1=nops1, NOPs2=nops2, N_GENE_CHUNKS=n_gene_chunks, USE_SEQ=use_seq, ncpus=ncpus)
 
     # Generate the mapping table
 

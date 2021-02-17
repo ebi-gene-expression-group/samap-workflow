@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import os
 import click
 import scanpy as sc
 import pandas as pd
@@ -12,13 +13,14 @@ from samap.utils import save_samap
 @click.argument('annData1', type=click.Path(exists=True))
 @click.argument('annData2', type=click.Path(exists=True))
 @click.argument('blastmaps', type=click.Path(exists=True))
-@click.argument("transcript-to_gene1", type=click.Path(exists=True), default=None) 
-@click.argument("transcript-to_gene2", type=click.Path(exists=True), default=None )
+@click.argument("transcript-to-gene1", type=click.Path(exists=True), default=None) 
+@click.argument("transcript-to-gene2", type=click.Path(exists=True), default=None )
 @click.argument("outfile", type=click.Path(exists=False), default=None )
 @click.option('--id1', help='Organism 1 identifier.')
 @click.option('--id2', help='Organism 2 identifier.')
+@click.option('--reset-to-raw', is_flag=True, default=False, help="If set, use the .raw slot of anndata objects to reset .X. Useful when handling previously processed anndata objects")
 
-def samap_samap(anndata1, anndata2, blastmaps, transcript_to_gene1, transcript_to_gene2, outfile, id1=None, id2=None):
+def samap_samap(anndata1, anndata2, blastmaps, transcript_to_gene1, transcript_to_gene2, outfile, id1=None, id2=None, reset_to_raw=False):
     """Initializes and preprocess data structures for SAMap algorithm.
 
     annData1 - The path to a '.h5ad' `AnnData` object for organism 1.\n
@@ -34,10 +36,26 @@ def samap_samap(anndata1, anndata2, blastmaps, transcript_to_gene1, transcript_t
 
     if transcript_to_gene2 is not None:
         names2=pd.read_csv(transcript_to_gene2, sep='\t').values.tolist()
+
+    if reset_to_raw:
+        ad1=sc.read(anndata1)
+        ad1.X=ad1.raw.X
+
+        ad2=sc.read(anndata2)
+        ad2.X=ad2.raw.X
+
+        anndata1=anndata1.replace(".h5ad", ".raw.h5ad")
+        anndata2=anndata2.replace(".h5ad", ".raw.h5ad")
     
+        ad1.write(anndata1)
+        ad2.write(anndata2)
+
     sm = SAMAP(anndata1,anndata2,id1,id2,f_maps = blastmaps, names1=names1, names2=names2) 
     save_samap(sm,outfile)    
 
+    if reset_to_raw:
+        os.remove(anndata1)
+        os.remove(anndata2)    
 
 if __name__ == '__main__':
     samap_samap()
