@@ -1,4 +1,7 @@
-configfile: "config.yaml"
+# Allow specifying config with --config-file
+config_file = config.get('config-file') if config.get('config-file') is not None else 'config.yaml'
+
+configfile: config_file
 
 wildcard_constraints:
     prefix1 = "[^\/\.]+",
