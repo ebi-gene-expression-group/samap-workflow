@@ -8,12 +8,12 @@ samap-run:
     threads: 4
 
 data:
-    hu:
-        anndata: hu.h5ad
-        transcriptome: Homo_sapiens.GRCh38.cdna.all.99.fa.gz
-    mu:
-        anndata: mu.h5ad
-        transcriptome: Mus_musculus.GRCm38.cdna.all.99.fa.gz
+    - id: hu
+      anndata: hu.h5ad
+      transcriptome: Homo_sapiens.GRCh38.cdna.all.99.fa.gz
+    - id: mu
+      anndata: mu.h5ad
+      transcriptome: Mus_musculus.GRCm38.cdna.all.99.fa.gz
 
 reset_to_raw: True
 

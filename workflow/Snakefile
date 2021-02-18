@@ -5,7 +5,7 @@ wildcard_constraints:
     prefix2 = "[^\/\.]+",
     results_tag = "[^\/]+",
 
-name1, name2 = config.get('data').keys()
+name1, name2 = [ x['id'] for x in config.get('data') ]
 
 rule all:
     input:    
@@ -14,7 +14,7 @@ rule all:
 
 rule unzip_transcriptome:
     input:
-        fagz=lambda wildcards: config["data"][wildcards.prefix]['transcriptome']
+        fagz=lambda wildcards: [ x['transcriptome'] for x in config['data'] if x['id'] == wildcards.prefix ][0]
 
     output:
         fa=temp('{prefix}.fa')
@@ -93,7 +93,8 @@ rule merge_blast:
 
 rule transcript_to_gene:
     input:
-        fa=lambda wildcards: config["data"][wildcards.prefix]['transcriptome']
+        fa=lambda wildcards: [ x['transcriptome'] for x in config['data'] if x['id'] == wildcards.prefix ][0] 
+
     output:
         txt=temp("{path}/{prefix}.t2gene")
 
@@ -117,8 +118,8 @@ rule samap_samap:
         pkl=protected("{path}/{results_tag}/{prefix1}_{prefix2}.sam.pkl")
 
     params:
-        anndata1=lambda wildcards: config["data"][wildcards.prefix1]['anndata'],
-        anndata2=lambda wildcards: config["data"][wildcards.prefix2]['anndata'],
+        anndata1=lambda wildcards: [ x['anndata'] for x in config['data'] if x['id'] == wildcards.prefix1 ][0], 
+        anndata2=lambda wildcards: [ x['anndata'] for x in config['data'] if x['id'] == wildcards.prefix2 ][0], 
         reset_to_raw='--reset-to-raw' if config.get('reset_to_raw') is not None and config.get('reset_to_raw') else ''
 
     resources:
