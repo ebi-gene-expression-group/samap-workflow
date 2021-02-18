@@ -1,5 +1,5 @@
 # Allow specifying config with --config-file
-config_file = config.get('config-file') if config.get('config-file') is not None else 'config.yaml'
+config_file = config.get('configfile') if config.get('configfile') is not None else 'config.yaml'
 
 configfile: config_file
 
