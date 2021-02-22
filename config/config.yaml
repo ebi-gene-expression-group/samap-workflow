@@ -2,7 +2,7 @@ blast:
     splits: 1000
     db_exts: [ 'nhr', 'nin', 'nsq', 'nhr', 'nin' ]
     type: nucl
-    threads: 16
+    threads: 8
 
 samap-run:
     threads: 4
