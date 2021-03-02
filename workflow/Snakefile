@@ -129,7 +129,7 @@ rule samap_samap:
         mem_mb=lambda wildcards, attempt: attempt * 32684
 
     shell:
-        "samap-samap --id1={wildcards.prefix1} --id2={wildcards.prefix2} {params.reset_to_raw} {params.anndata1} {params.anndata2} {wildcards.path}/maps/ {input.transcript_to_gene1} {input.transcript_to_gene2} {output.pkl}"
+        "{workflow.basedir}/scripts/samap-samap --id1={wildcards.prefix1} --id2={wildcards.prefix2} {params.reset_to_raw} {params.anndata1} {params.anndata2} {wildcards.path}/maps/ {input.transcript_to_gene1} {input.transcript_to_gene2} {output.pkl}"
 
 
 # Note: memory usage for samap-run scales with number of threads.
@@ -154,5 +154,5 @@ rule samap_run:
         cell_type_field=config.get('cell_type_field'),       
 
     shell:
-        "samap-run --celltype_field1 {params.cell_type_field} --celltype_field2 {params.cell_type_field} --ncpus {threads} {input.sam} {output.sam} {output.tsv} {output.png}"
+        "{workflow.basedir}/scripts/samap-run --celltype_field1 {params.cell_type_field} --celltype_field2 {params.cell_type_field} --ncpus {threads} {input.sam} {output.sam} {output.tsv} {output.png}"
 
